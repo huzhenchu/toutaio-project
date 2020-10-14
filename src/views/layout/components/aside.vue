@@ -1,5 +1,5 @@
 <template>
-<el-menu router default-active="/" background-color="#002033" text-color="#fff" active-text-color="#ffd04b">
+<el-menu :collapse="isCollapse" router default-active="/" background-color="#002033" text-color="#fff" active-text-color="#ffd04b">
   <el-menu-item index="/">
     <i class="iconfont iconindex"></i>
     <span slot="title" style='margin-left:5px;'>首页</span>
@@ -34,6 +34,14 @@
 <script>
 export default {
   name: "AppAside",
+  props: {
+    isCollapse: {
+      type: Boolean
+    }
+  },
+  data() {
+    return {}
+  },
   methods: {}
 };
 </script>

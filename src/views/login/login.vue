@@ -25,7 +25,7 @@
 <script>
 import {
   login
-} from '@/api/login'
+} from '@/api/user'
 
 export default {
   name: "LoginIndex",
@@ -81,7 +81,7 @@ export default {
       //表单验证
       this.$refs["formRef"].validate(valid => {
         if (!valid) {
-          return this.$message.error("验证失败");
+          return this.$message.error("验证失败")
         }
         //验证通过,请求登录
         this.loginInfo();
@@ -90,18 +90,20 @@ export default {
     loginInfo() {
       this.loginLoading = true;
       login(this.user).then(res => {
-          console.log(res);
+          // console.log(res);
           this.$message({
             message: "登录成功",
             type: "success"
           });
           this.loginLoading = false;
+          window.sessionStorage.setItem('token', JSON.stringify(res.data.data.token)) //储存token到本地
+          this.$router.push("/");
         })
         .catch(err => {
           this.$message.error("登录失败,手机号或验证码失败");
           this.loginLoading = false;
         });
-      this.$router.push("/home");
+
     }
   }
 };
