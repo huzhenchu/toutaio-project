@@ -41,10 +41,10 @@
 import AppAside from "./components/aside";
 import {
   getUserProfile
-} from '@/api/user';
+} from "@/api/user";
 import {
   log
-} from 'util';
+} from "util";
 
 export default {
   name: "LayouIndex",
@@ -52,27 +52,32 @@ export default {
     return {
       userInfo: {},
       isCollapse: false //侧边菜单栏的展开状态
-    }
+    };
   },
   components: {
     AppAside
   },
   created() {
-    this.loadUserProfile()
+    this.loadUserProfile();
   },
   methods: {
     loadUserProfile() {
       getUserProfile().then(res => {
         // console.log(res)
-        this.userInfo = res.data.data
-
-      })
+        this.userInfo = res.data.data;
+      });
     },
     BtnOut() {
-      this.$router.push("/login");
+      this.$confirm("确认退出？")
+        .then(_ => {
+          window.sessionStorage.removeItem("token");
+          this.$router.push("/login");
+          done();
+        })
+        .catch(_ => {});
     },
     BtnClickTrueAndFalse() {
-      this.isCollapse = !this.isCollapse
+      this.isCollapse = !this.isCollapse;
     }
   }
 };
