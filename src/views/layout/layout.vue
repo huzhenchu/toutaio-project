@@ -115,7 +115,6 @@ export default {
   }
 
   .main {
-    background-color: #ccc;
     color: #000;
   }
 }

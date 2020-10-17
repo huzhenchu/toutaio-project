@@ -1,12 +1,11 @@
 <template>
 <div>
-  首页
+  publish
 </div>
 </template>
 
 <script>
 export default {
-  name: 'HomeIndex'
 
 }
 </script>

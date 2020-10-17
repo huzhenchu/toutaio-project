@@ -1,12 +1,11 @@
 <template>
 <div>
-  首页
+  fans
 </div>
 </template>
 
 <script>
 export default {
-  name: 'HomeIndex'
 
 }
 </script>
