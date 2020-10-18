@@ -5,6 +5,19 @@
  * **/
 import request from '@/utils/request.js'
 
+
+/**
+ * 
+ * 获取文章频道
+ * 
+ * **/
+export const getUserChannels = () => {
+  return request({
+    method:'GET',
+    url:'/mp/v1_0/channels',
+  })
+}
+
 // 获取table表格的数据
 export const getUsertableInfo = params => {
   return request({
@@ -18,5 +31,18 @@ export const getUsertableInfo = params => {
      * Headers  参数的使用  Headers
      * **/
     params
+  })
+}
+
+
+/**
+ * 删除接口的封装
+ * 
+ * 
+ * **/
+export const deleteArticle = id => {
+  return request({
+    method:'DELETE',
+    url:`/mp/v1_0/articles/${id}`
   })
 }

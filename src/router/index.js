@@ -67,9 +67,10 @@ const router = new VueRouter({
 })
 
 
-// 前置导航
+// 全局前置导航
 router.beforeEach((to, from, next) => {
   const token = JSON.parse(window.sessionStorage.getItem('token'))
+  //如果你去的不是login页面的话  我们再进行判断:如果你是取的页面里面有token的话,就放行,否则的话就强行跳回login页面,进行登录
   if (to.path !== '/login') {
     if (token) {
       next()

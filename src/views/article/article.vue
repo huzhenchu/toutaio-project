@@ -8,29 +8,28 @@
     <div class="article_form">
       <el-form ref="form" :model="form" label-width="50px">
         <el-form-item label="状态">
-          <el-radio-group v-model="form.resource">
-            <el-radio label="全部"></el-radio>
-            <el-radio label="草稿"></el-radio>
-            <el-radio label="待审核"></el-radio>
-            <el-radio label="审核通过"></el-radio>
-            <el-radio label="审核失败"></el-radio>
-            <el-radio label="已删除"></el-radio>
+          <el-radio-group v-model="status">
+            <el-radio :label="null">全部</el-radio>
+            <el-radio :label="0">草稿</el-radio>
+            <el-radio :label="1">待审核</el-radio>
+            <el-radio :label="2">审核通过</el-radio>
+            <el-radio :label="3">审核失败</el-radio>
+            <el-radio :label="4">已删除</el-radio>
           </el-radio-group>
         </el-form-item>
 
         <el-form-item label="频道">
-          <el-select v-model="form.region" placeholder="请选择频道">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+          <el-select v-model="channelId" placeholder="请选择频道">
+            <el-option v-for='item in channelsList' :key='item.id' :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
 
         <el-form-item label="日期">
-          <el-date-picker v-model="form.data1" type="datetimerange" start-placeholder="开始日期" end-placeholder="结束日期" :default-time="['12:00:00']">
+          <el-date-picker value-format='yyyy-MM-dd' format="yyyy-MM-dd" v-model="dataTime" type="datetimerange" start-placeholder="开始日期" end-placeholder="结束日期" :default-time="['12:00:00']">
           </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">筛选</el-button>
+          <el-button type="primary" :disabled="loading" @click="getTable(1)">查询</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -38,26 +37,44 @@
 
   <el-card>
     <div class="article_table">
-      <div class="article_table_title">根据筛选条件共查询到 {{ tableTotal }} 条结果：</div>
-      <el-table :data="tableData" style="width: 100%" stripe>
-        <el-table-column prop="date" label="封面" width="180">
-        </el-table-column>
-        <el-table-column prop="title" label="标题" width="180">
-        </el-table-column>
-        <el-table-column prop="status" label="状态">
-          <template>
-            <el-tag type="success">标签二</el-tag>
+      <div class="article_table_title">根据筛选条件共查询到 {{ totalData }} 条结果：</div>
+      <el-table :data="tableData" v-loading="loading">
+        <el-table-column prop="date" align="center" label="封面" width="180">
+          <template slot-scope="scope">
+            <!--
+            <img v-if="scope.row.cover.images[0]" :src="scope.row.cover.images[0]" alt="" class="article-cover">
+            <img v-else :src="img" alt="" class="article-cover">
+            -->
+            <el-image style="width: 100px; height: 100px" :src="scope.row.cover.images[0]" lazy fit="cover"></el-image>
           </template>
         </el-table-column>
-        <el-table-column prop="pubdate" label="发布时间">
+        <el-table-column prop="title" align="center" label="标题" width="180">
         </el-table-column>
-        <el-table-column prop="address" label="操作">
+        <el-table-column prop="status" align="center" label="状态">
+          <template slot-scope="scope">
+            <!--{{ scope.row.status }}-->
+            <!--
+              <el-tag v-if='scope.row.status === 0' type="warning">草稿</el-tag>
+              <el-tag v-else-if='scope.row.status === 1'>待审核</el-tag>
+              <el-tag v-else-if='scope.row.status === 2' type="success">审核通过</el-tag>
+              <el-tag v-else-if='scope.row.status === 3' type="danger">审核失败</el-tag>
+              <el-tag v-else-if='scope.row.status === 4' type="info">已删除</el-tag>
+            -->
+            <!--代码改进:-->
+            <el-tag :type="articlesStatus[scope.row.status].type">{{ articlesStatus[scope.row.status].text }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="pubdate" align="center" label="发布时间">
+        </el-table-column>
+        <el-table-column align="center" label="操作">
+          <template slot-scope="scope">
+            <el-button type="primary" plain icon="el-icon-edit" circle @click="handleEdit(scope.$index, scope.row)"></el-button>
+            <el-button type="danger" plain icon="el-icon-delete" circle @click="handleDelete(scope.$index, scope.row.id)"></el-button>
+          </template>
         </el-table-column>
       </el-table>
       <div class="article_pagination">
-        <el-pagination layout="prev, pager, next" :total="10000" background>
-        </el-pagination>
-
+        <el-pagination :current-page.sync="page" :disabled='loading' :page-size="pageSize" @current-change='OncurrentChangePage' layout="prev, pager, next" :total="totalData" background />
       </div>
     </div>
   </el-card>
@@ -67,46 +84,115 @@
 
 <script>
 import {
-  getUsertableInfo
+  getUsertableInfo,
+  getUserChannels,
+  deleteArticle
 } from "@/api/article.js";
 export default {
+  name: "Article",
   data() {
     return {
-      form: {
-        name: "",
-        region: "",
-        date1: "",
-        delivery: false,
-        type: [],
-        resource: "1",
-        desc: ""
-      },
-      tableTotal: 4466,
+      form: {},
+      img: require("@/assets/error.3f7b1f94.gif"),
+      totalData: null,
+      pageSize: 10, //每页大小
       tableData: [],
-      currentPage4: 4
+      channelsList: [],
+      currentPage4: 4,
+      status: null,
+      channelId: null,
+      dataTime: null,
+      loading: true,
+      page: 1, //当前组件
+
+      articlesStatus: [{
+          status: 0,
+          text: "草稿",
+          type: "info"
+        },
+        {
+          status: 1,
+          text: "待审核",
+          type: ""
+        },
+        {
+          status: 2,
+          text: "审核通过",
+          type: "success"
+        },
+        {
+          status: 3,
+          text: "审核失败",
+          type: "warning"
+        },
+        {
+
+          status: 4,
+          text: "已删除",
+          type: "danger"
+        }
+      ]
     };
   },
   created() {
     this.getTable();
+    this.getChannels();
   },
   methods: {
-    onSubmit() {
-      console.log("submit!");
-    },
-
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
-    },
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
-    },
-
-    getTable() {
-      getUsertableInfo().then(res => {
-        console.log(res);
-        this.tableData = res.data.data.results
-        this.tableTotal = res.data.data.total_count
+    // 频道
+    getChannels() {
+      getUserChannels().then(res => {
+        console.log(res.data.data.channels);
+        this.channelsList = res.data.data.channels;
       });
+    },
+
+    getTable(page) {
+      getUsertableInfo({
+        page: page || 1,
+        per_page: this.pageSize,
+        status: this.status,
+        channel_id: this.channelId,
+        begin_pubdate: this.dataTime ? this.dataTime[0] : null,
+        end_pubdate: this.dataTime ? this.dataTime[1] : null
+      }).then(res => {
+        // console.log(res);
+        this.tableData = res.data.data.results;
+        this.totalData = res.data.data.total_count;
+        this.loading = false;
+      });
+    },
+
+    // 分页
+    OncurrentChangePage(val) {
+      console.log(val);
+      this.getTable(val);
+      this.loading = false;
+    },
+    handleEdit(index, row) {
+      console.log(index, row);
+    },
+    handleDelete(index, rowId) {
+      console.log(index, rowId);
+      console.log(rowId.toString());
+      this.$confirm('确认删除?', '删除提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteArticle(rowId.toString()).then(res => {
+          console.log(res);
+          // this.getTable(this.page)
+        });
+
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
+
+      // this.getTable()
     }
   }
 };
@@ -129,6 +215,11 @@ export default {
         margin-top: 20px;
         border-top: 1px solid #eee;
         margin-bottom: 20px;
+      }
+
+      .article-cover {
+        width: 100px;
+        background-size: cover;
       }
 
       .article_pagination {
