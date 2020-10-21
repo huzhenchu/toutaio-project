@@ -136,7 +136,7 @@ export default {
   },
   created() {
     this.getTable();
-    this.getChannels();
+    this.getChannels(1);
   },
   methods: {
     // 频道
@@ -171,6 +171,7 @@ export default {
     },
     handleEdit(index, row) {
       console.log(index, row);
+      this.$router.push(`/publish`)
     },
     handleDelete(index, rowId) {
       console.log(index, rowId);
