@@ -57,10 +57,39 @@ export const addArticle = (data,draft=false) => {
   return request({
     method:'POST',
     url:`/mp/v1_0/articles`,
+    //POST请求要传递的参数
     data:data,
     params: {
       draft
     }
     
+  })
+}
+/**
+ * 
+ * 修改文章
+ * 
+ * **/ 
+export const editArticle = (articlesId, data, draft = false) => {
+  return request({
+    method:'PUT',
+    url:`/mp/v1_0/articles/${articlesId}`,
+    //POST请求要传递的参数
+    data:data,
+    params: {
+      draft
+    }
+  })
+}
+
+/**
+ * 
+ * 获取指定文章
+ * 
+ * **/ 
+export const getArticle = (articlesId) => {
+  return request({
+    method:'GET',
+    url:`/mp/v1_0/articles/${articlesId}`
   })
 }

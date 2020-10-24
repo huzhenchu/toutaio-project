@@ -5,6 +5,12 @@ import store from './store'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import JSONbig from 'json-bigint'
+import { ElementTiptapPlugin } from 'element-tiptap';
+import 'element-tiptap/lib/index.css';
+Vue.use(ElementTiptapPlugin,{
+  lang: "en", // 见 i18n
+  spellcheck: true, // 可被 editor 同名 prop 重写
+})
 
 //1. JSONbig.parse() 和 JSON.parse() 相对应的
 // var str = '{ "id": 1253585734669959168 }'

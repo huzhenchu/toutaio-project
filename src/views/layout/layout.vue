@@ -5,7 +5,7 @@
   </el-aside>
   <el-container>
     <el-header class="header">
-      <div class="header-left">
+      <div class="header-left" style="cursor: pointer;">
         <!--<i :class="{'el-icon-s-fold':isCollapse, 'el-icon-s-unfold': !isCollapse}" @click="BtnClickTrueAndFalse"></i>-->
         <i :class="isCollapse?'el-icon-s-fold':'el-icon-s-unfold'" @click="BtnClickTrueAndFalse"></i>
         <span>直播后台系统</span>

@@ -58,14 +58,11 @@ const routes = [
         component: Settings
       }
     ]
-  }
-
-]
+  }]
 
 const router = new VueRouter({
   routes
 })
-
 
 // 全局前置导航
 router.beforeEach((to, from, next) => {
@@ -81,5 +78,4 @@ router.beforeEach((to, from, next) => {
     next()
   }
 })
-
 export default router

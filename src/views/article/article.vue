@@ -68,7 +68,7 @@
         </el-table-column>
         <el-table-column align="center" label="操作">
           <template slot-scope="scope">
-            <el-button type="primary" plain icon="el-icon-edit" circle @click="handleEdit(scope.$index, scope.row)"></el-button>
+            <el-button type="primary" plain icon="el-icon-edit" circle @click="handleEdit(scope.row.id)"></el-button>
             <el-button type="danger" plain icon="el-icon-delete" circle @click="handleDelete(scope.$index, scope.row.id)"></el-button>
           </template>
         </el-table-column>
@@ -142,7 +142,7 @@ export default {
     // 频道
     getChannels() {
       getUserChannels().then(res => {
-        console.log(res.data.data.channels);
+        // console.log(res.data.data.channels);
         this.channelsList = res.data.data.channels;
       });
     },
@@ -169,9 +169,8 @@ export default {
       this.getTable(val);
       this.loading = false;
     },
-    handleEdit(index, row) {
-      console.log(index, row);
-      this.$router.push(`/publish`)
+    handleEdit(id) {
+      this.$router.push(`/publish?id=` + id)
     },
     handleDelete(index, rowId) {
       console.log(index, rowId);
