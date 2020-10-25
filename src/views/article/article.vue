@@ -126,7 +126,6 @@ export default {
           type: "warning"
         },
         {
-
           status: 4,
           text: "已删除",
           type: "danger"

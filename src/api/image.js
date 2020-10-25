@@ -24,3 +24,48 @@ export const uploadImage = data => {
     data
   })
 }
+
+/***
+ * 
+ * 获取素材列表
+ * 
+ * 
+ * **/
+export const getImages = (queryInfo) => {
+  return request({
+    method: 'GET',
+    url: '/mp/v1_0/user/images',
+    params:queryInfo
+  })
+}
+
+
+
+/***
+ * 
+ * 收藏素材列表
+ * 
+ * 
+ * **/
+export const CollectImages = (imageId,collect) => {
+  return request({
+    method: 'PUT',
+    url: `/mp/v1_0/user/images/${imageId}`,
+    data: {
+      collect
+    }
+  })
+}
+
+/***
+ * 
+ * 删除素材列表
+ * 
+ * 
+ * **/
+export const DeleteImages = (imageId) => {
+  return request({
+    method: 'DELETE',
+    url: `/mp/v1_0/user/images/${imageId}`
+  })
+}
